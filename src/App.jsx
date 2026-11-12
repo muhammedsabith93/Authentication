@@ -8,11 +8,9 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider } from "./contexts/AuthContext";
-
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
-
 import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
@@ -34,7 +32,10 @@ function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
-  );
+  );  
 }
 
 export default App;
+
+
+

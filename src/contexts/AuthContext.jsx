@@ -1,16 +1,6 @@
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
-
-import {
-  loginUser,
-  registerUser,
-  fetchUser,
-} from "../services/authApi";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { loginUser, registerUser, fetchUser } from "../services/authApi";
 
 const AuthContext = createContext();
 
@@ -18,73 +8,54 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Remove password from frontend user state
-  const safeUser = (data) => {
-    const { password, ...userInfo } = data;
-    return userInfo;
-  };
-
-  // Check login after page refresh
   useEffect(() => {
-    async function checkLogin() {
-      const userId = localStorage.getItem("userId");
+    const checkUser = async () => {
+      const id = localStorage.getItem("userId");
 
-      if (userId) {
+      if (id) {
         try {
-          const data = await fetchUser(userId);
-          setUser(safeUser(data));
-        } catch (error) {
+          const data = await fetchUser(id);
+          const { password, ...userInfo } = data;
+          setUser(userInfo);
+        } catch {
           localStorage.removeItem("userId");
         }
       }
 
       setIsLoading(false);
-    }
+    };
 
-    checkLogin();
+    checkUser();
   }, []);
 
-  // Login
-  const login = async (credentials) => {
-    const data = await loginUser(credentials);
 
-    localStorage.setItem("userId", data.id);
-    setUser(safeUser(data));
-
-    return data;
+  const login = async (data) => {
+    const user = await loginUser(data);
+    localStorage.setItem("userId", user.id);
+    setUser(user);
+    return user;
   };
 
-  // Register
-  const register = async (userData) => {
-    const data = await registerUser(userData);
-    return data;
-  };
 
-  // Logout
+  const register = (data) => registerUser(data);
+
   const logout = () => {
     localStorage.removeItem("userId");
     setUser(null);
   };
 
-  const isAuthenticated = !!user;
-
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        login,
-        register,
-        logout,
-        isAuthenticated,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isLoading,
+      login,
+      register,
+      logout,
+      isAuthenticated: !!user
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Custom hook
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);
