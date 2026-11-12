@@ -29,12 +29,16 @@ export function AuthProvider({ children }) {
   }, []);
 
 
-  const login = async (data) => {
-    const user = await loginUser(data);
-    localStorage.setItem("userId", user.id);
-    setUser(user);
-    return user;
-  };
+const login = async (data) => {
+  const user = await loginUser(data);
+
+  localStorage.setItem("userId", user.id);
+
+  const { password, ...userInfo } = user;
+  setUser(userInfo);
+
+  return user;
+};
 
 
   const register = (data) => registerUser(data);
